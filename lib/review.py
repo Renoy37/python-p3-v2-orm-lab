@@ -61,6 +61,14 @@ class Review:
     @classmethod
     def create(cls, year, summary, employee_id):
         """ Initialize a new Review instance and save the object to the database. Return the new instance. """
+        if not isinstance(year, int):
+            raise ValueError("Year must be an integer")
+
+        if year < 2000:
+            raise ValueError("Year must be greater than or equal to 2000")
+
+        if len(summary) == 0:
+            raise ValueError("Summary must have a non-zero length")
 
         review = cls(year, summary, employee_id)
         review.save()
@@ -131,3 +139,14 @@ class Review:
         rows = CURSOR.execute(sql).fetchall()
 
         return [cls.instance_from_db(row) for row in rows]
+
+    @property
+    def employee_id(self):
+        return self._employee_id
+
+    @employee_id.setter
+    def employee_id(self, employee_id):
+        if not Employee.find_by_id(employee_id):
+            raise ValueError(
+                "Employee ID does not exist in the employees table")
+        self._employee_id = employee_id
